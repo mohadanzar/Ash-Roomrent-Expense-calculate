@@ -1,5 +1,10 @@
 import type { Expense, Member, MemberSplit } from '../types'
 
+/** Round to nearest whole rupee: .5 and above rounds up, below .5 rounds down. */
+export function roundAmount(amount: number): number {
+  return Math.round(amount)
+}
+
 export function calculateSplits(
   members: Member[],
   rentAmount: number,
@@ -8,7 +13,7 @@ export function calculateSplits(
   if (members.length === 0) return []
 
   const count = members.length
-  const rentShare = rentAmount / count
+  const rentShare = roundAmount(rentAmount / count)
 
   return members.map((member) => {
     let expenseShare = 0
@@ -21,7 +26,8 @@ export function calculateSplits(
       }
     }
 
-    const totalDue = rentShare + expenseShare - paidAmount
+    expenseShare = roundAmount(expenseShare)
+    const totalDue = roundAmount(rentShare + expenseShare - paidAmount)
 
     return {
       memberId: member.id,
@@ -36,7 +42,7 @@ export function calculateSplits(
 }
 
 export function formatCurrency(amount: number): string {
-  return `₹${amount.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`
+  return `₹${roundAmount(amount).toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
 }
 
 export function getCurrentMonth(): string {
